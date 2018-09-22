@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "1085731601409",
+    "firebase_url": "https://ml-kit-63d76.firebaseio.com",
+    "project_id": "ml-kit-63d76",
+    "storage_bucket": "ml-kit-63d76.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1085731601409:android:ed1bd48b02560e5e",
+        "android_client_info": {
+          "package_name": "com.incred.facedetection"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1085731601409-hnkdltvs95mhn9jti7v7tbl49vnfac12.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA00wWaxvZvNe9-hKm_FvEBJXYK91C92oY"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
