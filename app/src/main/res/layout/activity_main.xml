@@ -10,6 +10,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
+    <com.incred.facedetection.GraphicOverlay
+        android:id="@+id/previewOverlay"
+        android:foreground="@color/whiteOff"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
     <android.support.v7.widget.AppCompatButton
         android:id="@+id/btnUpload"
         style="@style/Base.Widget.AppCompat.Button.Colored"

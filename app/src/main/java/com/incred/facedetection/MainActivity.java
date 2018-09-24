@@ -48,6 +48,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     private VideoView videoView;
+    private GraphicOverlay graphicOverlay;
     private AppCompatButton btnUpload, btnReplay;
     private FirebaseVisionFaceDetectorOptions options;
     private Handler handler;
@@ -55,6 +56,8 @@ public class MainActivity extends AppCompatActivity {
     private MediaMetadataRetriever retriever;
     private MediaPlayer mediaPlayerEx;
     private FirebaseVisionFaceDetector detector;
+    private final long FRAME_RATE_ALLOWED = (1 / 5) * 1000000;
+    private VisionImageProcessor imageProcessor;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -70,10 +73,12 @@ public class MainActivity extends AppCompatActivity {
         videoView = findViewById(R.id.videoView);
         btnUpload = findViewById(R.id.btnUpload);
         btnReplay = findViewById(R.id.btnReplay);
+        graphicOverlay = findViewById(R.id.previewOverlay);
         options = getOptions();
         handler = new Handler();
         retriever = new MediaMetadataRetriever();
         detector = FirebaseVision.getInstance().getVisionFaceDetector(options);
+        imageProcessor = new FaceDetectionProcessor();
     }
 
     private void buttonClickListener() {
@@ -102,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
             public void onPrepared(MediaPlayer mediaPlayer) {
                 mediaPlayerEx = mediaPlayer;
                 btnReplay.setEnabled(true);
+                graphicOverlay.setMinimumHeight(mediaPlayer.getVideoHeight());
             }
         });
 
@@ -109,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onCompletion(MediaPlayer mediaPlayer) {
                 btnReplay.setEnabled(true);
+                graphicOverlay.clear();
             }
         });
     }
@@ -118,9 +125,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 if (mediaPlayerEx.isPlaying()) {
-                    Bitmap frame = retriever.getFrameAtTime((long) mediaPlayerEx.getCurrentPosition() * 10000, MediaMetadataRetriever.OPTION_CLOSEST);
+                    Bitmap frame = retriever.getFrameAtTime((long) mediaPlayerEx.getCurrentPosition() * 1000 + FRAME_RATE_ALLOWED, MediaMetadataRetriever.OPTION_CLOSEST);
                     FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(frame);
-                    detectFramesFromBitmap(image);
+                    imageProcessor.process(frame, graphicOverlay);
                     saveBitmap(frame);
                     handler.postDelayed(this, 200);
                 }
@@ -128,27 +135,6 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         runnable.run();
-    }
-
-    private void detectFramesFromBitmap(FirebaseVisionImage image) {
-        detector.detectInImage(image)
-                .addOnSuccessListener(
-                        new OnSuccessListener<List<FirebaseVisionFace>>() {
-                            @Override
-                            public void onSuccess(List<FirebaseVisionFace> faces) {
-                                // Task completed successfully
-                                Log.d("TAG", "success detected faces in given frame");
-                            }
-                        })
-                .addOnFailureListener(
-                        new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                // Task failed with an exception
-                                Log.d("TAG", "failed to detect face in given frame");
-                                e.printStackTrace();
-                            }
-                        });
     }
 
     private void openGallery() {
@@ -188,6 +174,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                     FileOutputStream outputStream = new FileOutputStream(File.createTempFile(fileName, ".jpg", file));
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 60, outputStream);
+                    outputStream.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
